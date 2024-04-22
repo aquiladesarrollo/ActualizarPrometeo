@@ -279,7 +279,7 @@ namespace ExcelFill
                 excelWorksheet.Cells[contador + i, 3] = cashflow[i, 1]; // Cuenta 
                 excelWorksheet.Cells[contador + i, 4] = cashflow[i, 13]; // Concepto
                 excelWorksheet.Cells[contador + i, 6] = cashflow[i, 8]; // Monto
-                excelWorksheet.Cells[contador + i, 7] = cashflow[i, 4]; // Descripción
+                excelWorksheet.Cells[contador + i, 7] = cashflow[i, 2]; // Descripción
                 excelWorksheet.Cells[contador + i, 5] = cashflow[i, 6]; // Moneda
             }
 
@@ -595,46 +595,18 @@ namespace ExcelFill
 
             if (!esPIC)
             {
-                for (int i = 0; i < bonds.GetLength(0); i++)
+                for (int i = 0; i < newBonds.GetLength(0); i++)
                 {
-                    for (int j = 0; j < matrizSIC.GetLength(0); j++)
+                    if (newBonds[i, 9] != "Bonos")
                     {
-                        if (bonds[i, 3] == matrizSIC[j, 0])
+                        newBonds[i, 9] = "Acciones (NO SIC)";
+                        for (int j = 0; j < matrizSIC.GetLength(0); j++)
                         {
-                            bonds[i, 11] = "Acciones (SIC)";
-                        }
-                        else if (bonds[i, 11] == "Equity")
-                        {
-                            bonds[i, 11] = "Acciones (NO SIC)";
-                        }
-                        else if (bonds[i, 11] == "Fixed Income")
-                        {
-                            bonds[i, 11] = "Bonos";
-                        }
-                        else if (bonds[i, 11] == "Derivados")
-                        {
-                            bonds[i, 11] = "Derivados";
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < bonds.GetLength(0); i++)
-                {
-                    for (int j = 0; j < matrizSIC.GetLength(0); j++)
-                    {
-                        if (bonds[i, 11] == "Equity")
-                        {
-                            bonds[i, 11] = "Acciones";
-                        }
-                        else if (bonds[i, 11] == "Fixed Income")
-                        {
-                            bonds[i, 11] = "Bonos";
-                        }
-                        else if (bonds[i, 11] == "Derivados")
-                        {
-                            bonds[i, 11] = "Derivados";
+                            if (newBonds[i, 3] == matrizSIC[j, 0] || (newBonds[i, 3].Length >= 2 && newBonds[i, 3].Substring(0, 2) == "MX") || (!string.IsNullOrEmpty(newBonds[i, 3]) && (matrizSIC[j, 2].Contains(newBonds[i, 3])) ))
+                            {
+                                newBonds[i, 9] = "Acciones (SIC)";
+                                break;
+                            }
                         }
                     }
                 }
@@ -874,7 +846,7 @@ namespace ExcelFill
                         newBonds[i, 8] = unidades.ToString();
 
                     }
-                }
+                } 
             }
 
             Log("Se ajustó la matriz Bonds");
@@ -1038,7 +1010,7 @@ namespace ExcelFill
                 }
                 else
                 {
-                    newCashflow[i, 13] = "****";
+                    newCashflow[i, 13] = newCashflow[i, 4]; //ponerlo tal cual
                 }
             }
 
