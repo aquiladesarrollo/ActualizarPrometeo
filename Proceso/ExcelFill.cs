@@ -42,7 +42,7 @@ namespace ExcelFill
             try
             {
                 excelApp = new Excel.Application();
-                //excelApp.Visible = true; 
+                excelApp.Visible = true; 
                 excelWorkbook = excelApp.Workbooks.Open(path);
 
                 bool esPIC = false;
@@ -1036,10 +1036,17 @@ namespace ExcelFill
         private static void ObtenerValorPortfolio(string[,] valoresMercado, out string valorPortafolio)
         {
             double portfolio = 0;
+            double valor;
 
             for (int i = 1; i < valoresMercado.GetLength(0); i++)
             {
-                double valor = double.Parse(valoresMercado[i, 5]);
+                if (string.IsNullOrEmpty(valoresMercado[i, 5]))
+                {
+                    valor = 0.0;
+                } else
+                {
+                    valor = double.Parse(valoresMercado[i, 5]);
+                }
                 valor = Math.Round(valor, 3);
                 portfolio += valor;
             }
