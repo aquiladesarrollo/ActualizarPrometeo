@@ -1315,7 +1315,7 @@ namespace ExcelFill
                 Directory.CreateDirectory(startBot.cfgDic["rutaLogs"]);
             }
 
-            string pathLog = startBot.cfgDic["rutaLogs"] + "\\" + miFechaActual.ToString("yyyyMMdd") + "_SetupClientesLog.txt";
+            string pathLog = startBot.cfgDic["rutaLogs"] + "\\" + miFechaActual.ToString("yyyyMMdd") + "_ActualizarPrometeoLog.txt";
             string className = nameof(ExcelFiller);
 
             using (System.IO.StreamWriter escritor = new System.IO.StreamWriter(pathLog, true))

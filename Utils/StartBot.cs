@@ -163,7 +163,7 @@ namespace StartRobot
                 Directory.CreateDirectory(_cfgDic["rutaLogs"]);
             }
 
-            string pathLog = _cfgDic["rutaLogs"] + "\\" + miFechaActual.ToString("yyyyMMdd") + "_SetupClientesLog.txt";
+            string pathLog = _cfgDic["rutaLogs"] + "\\" + miFechaActual.ToString("yyyyMMdd") + "_ActualizarPrometeoLog.txt";
             string className = nameof(StartBot);
 
             using (System.IO.StreamWriter escritor = new System.IO.StreamWriter(pathLog, true))
