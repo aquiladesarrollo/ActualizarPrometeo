@@ -68,7 +68,7 @@ namespace ExcelFill
                 ActualizarPortada(cliente, valorPortafolio, esPIC, fechaSetup, excelWorkbook);
                 ActualizarBaseDatos(excelWorkbook);
 
-                EjecutarMacros(cliente, excelApp, excelWorkbook);
+                //EjecutarMacros(cliente, excelApp, excelWorkbook);
                 ActualizarValoresMercado(cliente, valoresMercado, valoresMercadoAntiguos, excelWorkbook, esPIC);
             }
             catch (Exception ex)
@@ -494,7 +494,9 @@ namespace ExcelFill
                 //valores que están en verificados
                 string[] newIsin = new string[contador];
                 string[] valores = new string[contador];
-                string[] descripcion = new string[contador]; 
+                string[] descripcion = new string[contador];
+
+                string[] descVM; //para hacer que compare con un 
                 contador = 0;
 
                 for (int i = 0; i < isin.Length; i++)
@@ -511,7 +513,8 @@ namespace ExcelFill
                 {
                     for (int j = 0; j < valoresMercado.GetLength(0); j++)
                     {
-                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(valoresMercado[j, 1]))
+                        descVM = valoresMercado[j, 1].Split(" "); 
+                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(string.Join(" ", valoresMercado[j, 1], 0, descVM.Length / 2)))
                         {
                             valores[i] = valoresMercado[j, 5];
                         }
