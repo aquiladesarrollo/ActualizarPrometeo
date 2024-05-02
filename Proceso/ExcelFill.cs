@@ -491,9 +491,10 @@ namespace ExcelFill
                         contador++;
                     }
                 }
-
+                //valores que están en verificados
                 string[] newIsin = new string[contador];
                 string[] valores = new string[contador];
+                string[] descripcion = new string[contador]; 
                 contador = 0;
 
                 for (int i = 0; i < isin.Length; i++)
@@ -501,6 +502,7 @@ namespace ExcelFill
                     if (!string.IsNullOrEmpty(isin[i]))
                     {
                         newIsin[contador] = isin[i];
+                        descripcion[contador] = excelWorksheet.Cells[contador + 7, 4].Value.ToString();
                         contador++;
                     }
                 }
@@ -509,7 +511,7 @@ namespace ExcelFill
                 {
                     for (int j = 0; j < valoresMercado.GetLength(0); j++)
                     {
-                        if (newIsin[i] == valoresMercado[j, 0])
+                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(valoresMercado[j, 1]))
                         {
                             valores[i] = valoresMercado[j, 5];
                         }
