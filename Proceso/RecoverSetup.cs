@@ -63,7 +63,7 @@ namespace RecoverSetup
                 Directory.CreateDirectory(startBot.cfgDic["rutaLogs"]);
             }
 
-            string pathLog = startBot.cfgDic["rutaLogs"] + "\\" + miFechaActual.ToString("yyyyMMdd") + "_ActualizarPrometeo.txt";
+            string pathLog = startBot.cfgDic["rutaLogs"] + "\\" + miFechaActual.ToString("yyyyMMdd") + "_ActualizarPrometeoLog.txt";
             string className = nameof(ClientesSetup);
 
             using (System.IO.StreamWriter escritor = new System.IO.StreamWriter(pathLog, true))

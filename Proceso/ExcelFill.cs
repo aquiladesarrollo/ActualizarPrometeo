@@ -514,7 +514,7 @@ namespace ExcelFill
                     for (int j = 0; j < valoresMercado.GetLength(0); j++)
                     {
                         descVM = valoresMercado[j, 1].Split(" "); 
-                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(string.Join(" ", valoresMercado[j, 1], 0, descVM.Length / 2)))
+                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(string.Join(" ", descVM, 0, descVM.Length / 2)))
                         {
                             valores[i] = valoresMercado[j, 5];
                         }
@@ -560,6 +560,9 @@ namespace ExcelFill
 
                 string[] newIsin = new string[contador];
                 string[] valores = new string[contador];
+                string[] descripcion = new string[contador];
+
+                string[] descVM; //para hacer que compare con un 
                 contador = 0;
 
                 for (int i = 0; i < isin.Length; i++)
@@ -575,7 +578,8 @@ namespace ExcelFill
                 {
                     for (int j = 0; j < valoresMercado.GetLength(0); j++)
                     {
-                        if (newIsin[i] == valoresMercado[j, 0])
+                        descVM = valoresMercado[j, 1].Split(" ");
+                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(string.Join(" ", descVM, 0, descVM.Length / 2)))
                         {
                             valores[i] = valoresMercado[j, 5];
                         }
