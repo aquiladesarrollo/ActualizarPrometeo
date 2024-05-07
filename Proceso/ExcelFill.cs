@@ -42,7 +42,7 @@ namespace ExcelFill
             try
             {
                 excelApp = new Excel.Application();
-                excelApp.Visible = true; 
+                //excelApp.Visible = true; 
                 excelWorkbook = excelApp.Workbooks.Open(path);
 
                 bool esPIC = false;
@@ -68,7 +68,7 @@ namespace ExcelFill
                 ActualizarPortada(cliente, valorPortafolio, esPIC, fechaSetup, excelWorkbook);
                 ActualizarBaseDatos(excelWorkbook);
 
-                //EjecutarMacros(cliente, excelApp, excelWorkbook);
+                EjecutarMacros(cliente, excelApp, excelWorkbook);
                 ActualizarValoresMercado(cliente, valoresMercado, valoresMercadoAntiguos, excelWorkbook, esPIC);
             }
             catch (Exception ex)
@@ -570,6 +570,7 @@ namespace ExcelFill
                     if (!string.IsNullOrEmpty(isin[i]))
                     {
                         newIsin[contador] = isin[i];
+                        descripcion[contador] = excelWorksheet.Cells[contador + 8, 4].Value.ToString();
                         contador++;
                     }
                 }
@@ -578,8 +579,9 @@ namespace ExcelFill
                 {
                     for (int j = 0; j < valoresMercado.GetLength(0); j++)
                     {
-                        descVM = valoresMercado[j, 1].Split(" ");
-                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(string.Join(" ", descVM, 0, descVM.Length / 2)))
+                        //descVM = valoresMercado[j, 1].Split(" "); 
+                        //|| descripcion[i].Contains(string.Join(" ", descVM, 0, descVM.Length / 2))
+                        if (newIsin[i] == valoresMercado[j, 0] || newIsin[i] == valoresMercado[j, 7] ||  newIsin[i] == valoresMercado[j, 8] || newIsin[i] == valoresMercado[j, 9]) 
                         {
                             valores[i] = valoresMercado[j, 5];
                         }
