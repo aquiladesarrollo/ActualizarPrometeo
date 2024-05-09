@@ -116,8 +116,8 @@ namespace ExcelFill
                     for (int j = 0; j < VM.GetLength(1); j++)
                     {
                         VM[i,j] = valMercado[i,j];
-                        contador++; //numero de elementos que se necesitan para llenar saldos iniciales
                     }
+                    contador++; //numero de elementos que se necesitan para llenar saldos iniciales
                 }
             }
             //quitar renglones en blanco
