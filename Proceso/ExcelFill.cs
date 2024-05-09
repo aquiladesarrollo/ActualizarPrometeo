@@ -152,26 +152,54 @@ namespace ExcelFill
         private static string obtenerInstrumento(bool esPIC, string[] VMRow)
         {
             string[,] matrizSIC = ObtenerMatrizSIC();
-
-            /*if (!esPIC)
+            string tipo;
+            double unidades;
+            if(!string.IsNullOrEmpty(VMRow[6])) //tiene maturity o accrued interest
             {
-                for (int i = 0; i < newBonds.GetLength(0); i++)
+                tipo = "Bonos";
+            }
+            else if (!string.IsNullOrEmpty(VMRow[3]))
+            {
+                if (VMRow[3].StartsWith("(") && VMRow[3].EndsWith(")"))
                 {
-                    if (newBonds[i, 9] != "Bonos")
-                    {
-                        newBonds[i, 9] = "Acciones (NO SIC)";
-                        for (int j = 0; j < matrizSIC.GetLength(0); j++)
-                        {
-                            if (newBonds[i, 3] == matrizSIC[j, 0] || (newBonds[i, 3].Length >= 2 && newBonds[i, 3].Substring(0, 2) == "MX") || (!string.IsNullOrEmpty(newBonds[i, 3]) && (matrizSIC[j, 2].Contains(newBonds[i, 3]))))
-                            {
-                                newBonds[i, 9] = "Acciones (SIC)";
-                                break;
-                            }
-                        }
-                    }
+                    unidades = double.Parse(VMRow[3].Substring(1, VMRow[3].Length - 2));
+                    unidades *= -1;
                 }
-            }*/
-            return "";
+                else
+                {
+                    unidades = double.Parse(VMRow[3]);
+                }
+                unidades = Math.Abs(unidades);
+                if ((unidades % 100 == 0 && unidades % 10 == 0 && unidades % 1 == 0) && unidades >= 10000) //saber si es bono con porcentaje en l,a desc
+                {
+                    tipo = "Bonos";
+                }
+                else
+                {
+                    tipo = "Acciones";
+                }
+            } else
+            {
+                tipo = "";
+            }
+
+            if (!esPIC)
+            {
+                if (tipo != "Bonos")
+                {
+                    tipo = "Acciones (NO SIC)";
+                }
+                for (int j = 0; j < matrizSIC.GetLength(0); j++)
+                {
+                    if (VMRow[0] == matrizSIC[j, 0] || (VMRow[0].Length >= 2 && VMRow[0].Substring(0, 2) == "MX") || (!string.IsNullOrEmpty(VMRow[8]) &&
+                        matrizSIC[j, 2].Contains(VMRow[8]) ))
+                    {
+                        tipo = "Acciones (SIC)";
+                        break;
+                    }
+                }          
+            }
+            return tipo;
         }
         
         private static void ActualizarSaldosIniciales(string[,] valMercado, Excel.Workbook excelWorkbook, string anio)
@@ -770,7 +798,7 @@ namespace ExcelFill
                 if (DateTime.TryParseExact(fechaComparar, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out fecha))
                 {
                     // Revisa todos los años anteriores al actual
-                    if (fecha <= limiteFechaSuperior)
+                    if (fechaSetupActual <= fecha && fecha <= limiteFechaSuperior) //fecha <= limiteFechaSuperior
                     {
                         contador++;
                     }
@@ -787,7 +815,7 @@ namespace ExcelFill
                 if (DateTime.TryParseExact(fechaComparar, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out fecha))
                 {
                     // Revisa todos los años anteriores al actual
-                    if (fecha <= limiteFechaSuperior)
+                    if (fechaSetupActual <= fecha && fecha <= limiteFechaSuperior) //fecha <= limiteFechaSuperior
                     {
                         for (int j = 0; j < bonds.GetLength(1); j++)
                         {
@@ -797,7 +825,7 @@ namespace ExcelFill
                     }
                 }
             }
-
+            /*
             for (int i = 0; i < newBonds.GetLength(0); i++)
             {
                 string fechaComparar = newBonds[i, 0];
@@ -811,7 +839,7 @@ namespace ExcelFill
                     }
                 }
             }
-
+            */
             if(!string.IsNullOrEmpty(fechaMacro))
             {
                 DateTime.TryParseExact(fechaMacro, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaMacroActual);
