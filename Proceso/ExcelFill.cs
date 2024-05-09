@@ -57,6 +57,10 @@ namespace ExcelFill
                 if (existeMacro)
                 {
                     fechaMacro = ObtenerUltimoMovimiento(excelWorkbook, esPIC);
+                } else
+                {
+                    AjusteSaldosIniciales(valoresMercado, esPIC, anioSetup, out string[,] newVM);
+                    ActualizarSaldosIniciales(newVM, excelWorkbook, (Int32.Parse(anioSetup) - 1).ToString());
                 }
 
                 AjusteBonds(bonds, esPIC, fechaSetup, fechaMacro, out string[,] newBonds);
@@ -98,6 +102,127 @@ namespace ExcelFill
                 }
             }
         }
+        //obtener vm de diciembre del año anterior
+        private static void AjusteSaldosIniciales(string[,] valMercado,bool esPIC, string anioSetup, out string[,] newVM)
+        {
+            string anioAnterior = "12-" + (Int32.Parse(anioSetup) - 1).ToString(); //obtener los productos de dic del año anterior
+            string[,] VM = new string[valMercado.GetLength(0), valMercado.GetLength(1) ];
+            int contador = 0;
+
+            for (int i = 0; i < VM.GetLength(0); i++)
+            {
+                if (valMercado[i, 13] == anioAnterior) //formato: mm-yyyy
+                { 
+                    for (int j = 0; j < VM.GetLength(1); j++)
+                    {
+                        VM[i,j] = valMercado[i,j];
+                        contador++; //numero de elementos que se necesitan para llenar saldos iniciales
+                    }
+                }
+            }
+            //quitar renglones en blanco
+            newVM = new string[contador, VM.GetLength(1) + 1];
+            contador = 0;
+            for (int i = 0; i < newVM.GetLength(0); i++)
+            {
+                
+                if (valMercado[i, 13] == anioAnterior)
+                {
+                    for (int j = 0; j < newVM.GetLength(1) - 1; j++)
+                    {
+                        newVM[contador, j] = VM[i, j];
+                    }
+                    newVM[contador, newVM.GetLength(1) - 1] = obtenerInstrumento(esPIC, GetRow(VM, i)); 
+                    contador++;
+                }
+            }
+        }
+        private static string[] GetRow(string[,] matrix, int rowIndex)
+        {
+            int cols = matrix.GetLength(1);
+            string[] row = new string[cols];
+
+            for (int i = 0; i < cols; i++)
+            {
+                row[i] = matrix[rowIndex, i];
+            }
+
+            return row;
+        }
+        private static string obtenerInstrumento(bool esPIC, string[] VMRow)
+        {
+            string[,] matrizSIC = ObtenerMatrizSIC();
+
+            /*if (!esPIC)
+            {
+                for (int i = 0; i < newBonds.GetLength(0); i++)
+                {
+                    if (newBonds[i, 9] != "Bonos")
+                    {
+                        newBonds[i, 9] = "Acciones (NO SIC)";
+                        for (int j = 0; j < matrizSIC.GetLength(0); j++)
+                        {
+                            if (newBonds[i, 3] == matrizSIC[j, 0] || (newBonds[i, 3].Length >= 2 && newBonds[i, 3].Substring(0, 2) == "MX") || (!string.IsNullOrEmpty(newBonds[i, 3]) && (matrizSIC[j, 2].Contains(newBonds[i, 3]))))
+                            {
+                                newBonds[i, 9] = "Acciones (SIC)";
+                                break;
+                            }
+                        }
+                    }
+                }
+            }*/
+            return "";
+        }
+        
+        private static void ActualizarSaldosIniciales(string[,] valMercado, Excel.Workbook excelWorkbook, string anio)
+        {
+            Excel.Worksheet excelWorksheet = (Excel.Worksheet)excelWorkbook.Sheets["Compras y Ventas"];
+
+            Excel.Range columnRange = excelWorksheet.UsedRange;
+
+            // Contar las celdas utilizadas en la columna
+            int longitudColumna = columnRange.Rows.Count;
+
+            int contador = 0;
+            for (int i = 6; i < longitudColumna; i++)
+            {
+                string contenido = excelWorksheet.Cells[i, 3].Value;
+                if (contenido == null)
+                {
+                    break;
+                }
+                contador++;
+            }
+
+            contador = contador + 6;
+            string fecha;
+            string id, isin, cusipSedol, ticker;
+
+            for (int i = 0; i < valMercado.GetLength(0); i++)
+            {
+                fecha = !string.IsNullOrEmpty(valMercado[i, 14]) ? valMercado[i, 14] : $"31/12/{anio}";
+
+                id = !string.IsNullOrEmpty(valMercado[i, 9]) ? valMercado[i, 9] : "";
+                cusipSedol = !string.IsNullOrEmpty(valMercado[i, 7]) ? valMercado[i, 7] : id;
+                ticker = !string.IsNullOrEmpty(valMercado[i, 8]) ? valMercado[i, 8] : cusipSedol;
+                isin = !string.IsNullOrEmpty(valMercado[i, 0]) ? valMercado[i, 0] : ticker;
+
+                excelWorksheet.Cells[contador + i, 2] = fecha; // Fecha
+                excelWorksheet.Cells[contador + i, 3] = "Saldos Iniciales"; // Cuenta 
+                excelWorksheet.Cells[contador + i, 4] = valMercado[i, 1]; // Nombre Instrumento
+                excelWorksheet.Cells[contador + i, 5] = isin; // ISIN
+                excelWorksheet.Cells[contador + i, 6] = "Compra"; // Concepto
+                excelWorksheet.Cells[contador + i, 7] = valMercado[i, 15]; // Tipo Instrumento
+                excelWorksheet.Cells[contador + i, 8] = "USD"; // Moneda
+                excelWorksheet.Cells[contador + i, 9] = valMercado[i, 3]; // Unidades
+                excelWorksheet.Cells[contador + i, 10] = valMercado[i, 11]; // Precio total
+            }
+
+            excelWorkbook.Save();
+
+            Log("Se llenó la hoja de Compras y Ventas");
+        }
+
 
         private bool RevisiónExistenciaExcel(string cliente, string anioSetup)
         {
@@ -1017,7 +1142,15 @@ namespace ExcelFill
                 {
                     newCashflow[i, 13] = "No Deducibles";
                 }
-                else
+                else if (ContieneSubcadena(newCashflow[i, 4], startBot.cfgDic["peDist"].Split(",")))
+                {
+                    newCashflow[i, 13] = "PE Distribution";
+                }
+                else if (ContieneSubcadena(newCashflow[i, 4], startBot.cfgDic["capitalCall"].Split(",")))
+                {
+                    newCashflow[i, 13] = "Capital Call";
+                }
+                else 
                 {
                     newCashflow[i, 13] = newCashflow[i, 4]; //ponerlo tal cual
                 }
