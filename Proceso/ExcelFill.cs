@@ -638,8 +638,9 @@ namespace ExcelFill
                 {
                     for (int j = 0; j < valoresMercado.GetLength(0); j++)
                     {
-                        descVM = valoresMercado[j, 1].Split(" "); 
-                        if (newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(string.Join(" ", descVM, 0, descVM.Length / 2)))
+                        //descVM = valoresMercado[j, 1].Split(" "); 
+                        //newIsin[i] == valoresMercado[j, 0] || descripcion[i].Contains(string.Join(" ", descVM, 0, descVM.Length / 2))
+                        if (newIsin[i] == valoresMercado[j, 0] || newIsin[i] == valoresMercado[j, 7] || newIsin[i] == valoresMercado[j, 8] || newIsin[i] == valoresMercado[j, 9])
                         {
                             valores[i] = valoresMercado[j, 5];
                         }
