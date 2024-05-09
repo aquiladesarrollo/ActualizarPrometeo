@@ -120,6 +120,12 @@ namespace ExcelFill
                     contador++; //numero de elementos que se necesitan para llenar saldos iniciales
                 }
             }
+            if(contador == 0)
+            {
+                throw new Exception("No se encontraron saldos iniciales");
+                Log($"No se encontraron productos de diciembre de {anioAnterior} ");
+            }
+
             //quitar renglones en blanco
             newVM = new string[contador, VM.GetLength(1) + 1];
             contador = 0;
