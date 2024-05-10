@@ -234,7 +234,7 @@ namespace ExcelFill
 
             for (int i = 0; i < valMercado.GetLength(0); i++)
             {
-                fecha = !string.IsNullOrEmpty(valMercado[i, 14]) ? valMercado[i, 14] : $"31/12/{anio}";
+                fecha = !string.IsNullOrEmpty(valMercado[i, 14]) ? valMercado[i, 14] : $"{anio}-12-31";
 
                 id = !string.IsNullOrEmpty(valMercado[i, 9]) ? valMercado[i, 9] : "";
                 cusipSedol = !string.IsNullOrEmpty(valMercado[i, 7]) ? valMercado[i, 7] : id;
@@ -1216,15 +1216,21 @@ namespace ExcelFill
         {
             double portfolio = 0;
             double valor;
+            string headers = "Cash,Cash and money balances,liquidez"; //no añadir el valor de cash al portafolio
+
+            
 
             for (int i = 1; i < valoresMercado.GetLength(0); i++)
             {
-                if (string.IsNullOrEmpty(valoresMercado[i, 5]))
-                {
-                    valor = 0.0;
-                } else
+                if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")))
+                    continue; //ignorar el cash
+
+                if (!string.IsNullOrEmpty(valoresMercado[i, 5]))
                 {
                     valor = double.Parse(valoresMercado[i, 5]);
+                } else
+                {
+                    valor = 0.0;
                 }
                 valor = Math.Round(valor, 3);
                 portfolio += valor;
