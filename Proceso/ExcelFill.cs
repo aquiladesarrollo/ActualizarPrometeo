@@ -42,7 +42,7 @@ namespace ExcelFill
             try
             {
                 excelApp = new Excel.Application();
-                //excelApp.Visible = true; 
+                excelApp.Visible = true; 
                 excelWorkbook = excelApp.Workbooks.Open(path);
 
                 bool esPIC = false;
@@ -129,7 +129,7 @@ namespace ExcelFill
             //quitar renglones en blanco
             newVM = new string[contador, VM.GetLength(1) + 1];
             contador = 0;
-            for (int i = 0; i < newVM.GetLength(0); i++)
+            for (int i = 1; i <= newVM.GetLength(0); i++)
             {
                 
                 if (valMercado[i, 13] == anioAnterior)
@@ -246,7 +246,7 @@ namespace ExcelFill
                 excelWorksheet.Cells[contador + i, 4] = valMercado[i, 1]; // Nombre Instrumento
                 excelWorksheet.Cells[contador + i, 5] = isin; // ISIN
                 excelWorksheet.Cells[contador + i, 6] = "Compra"; // Concepto
-                excelWorksheet.Cells[contador + i, 7] = valMercado[i, 15]; // Tipo Instrumento
+                excelWorksheet.Cells[contador + i, 7] = valMercado[i, 16]; // Tipo Instrumento
                 excelWorksheet.Cells[contador + i, 8] = "USD"; // Moneda
                 excelWorksheet.Cells[contador + i, 9] = valMercado[i, 3]; // Unidades
                 excelWorksheet.Cells[contador + i, 10] = valMercado[i, 11]; // Precio total
@@ -764,25 +764,6 @@ namespace ExcelFill
             newBonds = (string[,])bonds.Clone();
             string[,] matrizSIC = ObtenerMatrizSIC();
 
-            if (!esPIC)
-            {
-                for (int i = 0; i < newBonds.GetLength(0); i++)
-                {
-                    if (newBonds[i, 9] != "Bonos")
-                    {
-                        newBonds[i, 9] = "Acciones (NO SIC)";
-                        for (int j = 0; j < matrizSIC.GetLength(0); j++)
-                        {
-                            if (newBonds[i, 3] == matrizSIC[j, 0] || (newBonds[i, 3].Length >= 2 && newBonds[i, 3].Substring(0, 2) == "MX") || (!string.IsNullOrEmpty(newBonds[i, 3]) && (matrizSIC[j, 2].Contains(newBonds[i, 3])) ))
-                            {
-                                newBonds[i, 9] = "Acciones (SIC)";
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
             DateTime.TryParseExact(fechaSetup, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaSetupActual);
             DateTime limiteFechaSuperior = new DateTime();
 
@@ -920,6 +901,26 @@ namespace ExcelFill
                 }
             }
 
+            if (!esPIC)
+            {
+                for (int i = 0; i < newBonds.GetLength(0); i++)
+                {
+                    if (newBonds[i, 11] != "Bonos")
+                    {
+                        newBonds[i, 11] = "Acciones (NO SIC)";
+                        for (int j = 0; j < matrizSIC.GetLength(0); j++)
+                        {
+                            if (newBonds[i, 3] == matrizSIC[j, 0] || (newBonds[i, 3].Length >= 2 && newBonds[i, 3].Substring(0, 2) == "MX") || (!string.IsNullOrEmpty(newBonds[i, 9]) && (matrizSIC[j, 2].Contains(newBonds[i, 9]))))
+                            {
+                                newBonds[i, 11] = "Acciones (SIC)";
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            /*
             for (int i = 0; i < newBonds.GetLength(0); i++)
             {
                 if (newBonds[i, 4] == "Buy")
@@ -931,7 +932,7 @@ namespace ExcelFill
                     newBonds[i, 4] = "Venta";
                 }
             }
-
+            */
             for (int i = 0; i < newBonds.GetLength(0); i++)
             {
                 string moneda = newBonds[i, 6];
