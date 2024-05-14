@@ -5,6 +5,7 @@ using System.Text;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using System.Drawing;
 
 namespace ExcelFill
 {
@@ -12,7 +13,7 @@ namespace ExcelFill
     {
         private static readonly StartBot startBot = new StartBot();
 
-        public void GenerarExcel(string cliente, string tipoPersona, string anioSetup, string[,] bonds, string[,] cashflow, string[,] saldos, string[,] valoresMercado, string[,] valoresMercadoAntiguos)
+        public void GenerarExcel(string cliente, string tipoPersona, string anioSetup, string[,] bonds, string[,] cashflow, string[,] saldos, string[,] valoresMercado, string[,] VMsaldos)
         {
             // Verifica si existe alguna macro preexistente
             bool existeMacro = RevisiónExistenciaExcel(cliente, anioSetup);
@@ -42,7 +43,7 @@ namespace ExcelFill
             try
             {
                 excelApp = new Excel.Application();
-                excelApp.Visible = true; 
+                //excelApp.Visible = true; 
                 excelWorkbook = excelApp.Workbooks.Open(path);
 
                 bool esPIC = false;
@@ -59,7 +60,7 @@ namespace ExcelFill
                     fechaMacro = ObtenerUltimoMovimiento(excelWorkbook, esPIC);
                 } else
                 {
-                    AjusteSaldosIniciales(valoresMercado, esPIC, anioSetup, out string[,] newVM);
+                    AjusteSaldosIniciales(VMsaldos, esPIC, anioSetup, out string[,] newVM);
                     ActualizarSaldosIniciales(newVM, excelWorkbook, (Int32.Parse(anioSetup) - 1).ToString());
                 }
 
@@ -73,7 +74,7 @@ namespace ExcelFill
                 ActualizarBaseDatos(excelWorkbook);
 
                 EjecutarMacros(cliente, excelApp, excelWorkbook);
-                ActualizarValoresMercado(cliente, valoresMercado, valoresMercadoAntiguos, excelWorkbook, esPIC);
+                ActualizarValoresMercado(cliente, valoresMercado, VMsaldos, excelWorkbook, esPIC);
             }
             catch (Exception ex)
             {
@@ -990,6 +991,14 @@ namespace ExcelFill
                     {
                         newBonds[i, 11] = "Opciones Acciones";
                     }
+                    //Quitar negativos, si es que hay
+                    //si es positivo, ponlo normal, si es neativo, conviertelo  a positivo
+                    if (double.TryParse(newBonds[i, 7], out double valor2))
+                        newBonds[i, 7] = Math.Abs(valor2).ToString(); //newBonds[i, 7] = valor2 >= 0 ? valor2.ToString() : Math.Abs(valor2).ToString(); 
+
+                    if (double.TryParse(newBonds[i, 8], out double unidades2))
+                        newBonds[i, 8] = Math.Abs(unidades2).ToString(); //unidades2 >= 0 ? unidades2.ToString() : Math.Abs(unidades2).ToString();
+
                     newBonds[i, 4] = "Venta";
                 }
                 else if (ContieneSubcadena(newBonds[i, 4], startBot.cfgDic["compra-"].Split(",")) && !string.IsNullOrEmpty(newBonds[i, 7]) && !string.IsNullOrEmpty(newBonds[i, 8]))

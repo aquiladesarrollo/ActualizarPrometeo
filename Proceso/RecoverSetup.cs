@@ -7,7 +7,7 @@ namespace RecoverSetup
     {
         private static readonly StartBot startBot = new StartBot();
 
-        public static void RecuperarArchivos(string cliente, out string[,] bonds, out string[,] cashFlow, out string[,] saldos, out string[,] valoresMercado, out string[,] valoresMercadoAntiguos)
+        public static void RecuperarArchivos(string cliente, out string[,] bonds, out string[,] cashFlow, out string[,] saldos, out string[,] valoresMercado, out string[,] VMsaldos)
         {
             string pathEntrada = startBot.cfgDic["rutaOrigen"];
             string path = Path.Combine(pathEntrada, cliente);
@@ -15,13 +15,13 @@ namespace RecoverSetup
             string pathCashFlow = Path.Combine(path, "cashflow.txt");
             string pathSaldos = Path.Combine(path, "saldos.txt");
             string pathValoresMercado = Path.Combine(path, "valoresMercado.txt");
-            string pathValoresMercadoAntiguos = Path.Combine(path, "valoresMercadoAntiguos.txt");
+            string pathVMsaldos = Path.Combine(path, "VMsaldos.txt");
 
             bonds = GenerarMatriz(pathBonds);
             cashFlow = GenerarMatriz(pathCashFlow);
             saldos = GenerarMatriz(pathSaldos);
             valoresMercado = GenerarMatriz(pathValoresMercado);
-            valoresMercadoAntiguos = GenerarMatriz(pathValoresMercadoAntiguos);
+            VMsaldos = GenerarMatriz(pathVMsaldos);
             Log("Se recuperó la información para el setup del cliente: " + cliente);
         }
 

@@ -28,8 +28,8 @@ class SetupClienteMain
         {
             try
             {
-                ClientesSetup.RecuperarArchivos(setupClientes[i], out string[,] bonds, out string[,] cashflow, out string[,] saldos, out string[,] valoresMercado, out string[,] valoresMercadoAntiguos);
-                excelFill.GenerarExcel(setupClientes[i], tipoPersona[i], anioSetup[i], bonds, cashflow, saldos, valoresMercado, valoresMercadoAntiguos);
+                ClientesSetup.RecuperarArchivos(setupClientes[i], out string[,] bonds, out string[,] cashflow, out string[,] saldos, out string[,] valoresMercado, out string[,] VMsaldos);
+                excelFill.GenerarExcel(setupClientes[i], tipoPersona[i], anioSetup[i], bonds, cashflow, saldos, valoresMercado, VMsaldos);
                 RegistrarProcesados(setupClientes[i]);
             }
             catch (Exception ex)
