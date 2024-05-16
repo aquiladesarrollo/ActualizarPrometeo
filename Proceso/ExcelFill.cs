@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using System.Drawing;
+using System.IO.Pipes;
 
 namespace ExcelFill
 {
@@ -66,7 +67,7 @@ namespace ExcelFill
 
                 AjusteBonds(bonds, esPIC, fechaSetup, fechaMacro, out string[,] newBonds);
                 AjusteCashflow(cashflow, fechaSetup, fechaMacro, out string[,] newCashflow);
-                ObtenerValorPortfolio(valoresMercado, out string valorPortafolio);
+                ObtenerValorPortfolio(valoresMercado, out string valorPortafolio, anioSetup);
 
                 ActualizarComprasYVentas(cliente, newBonds, excelWorkbook);
                 ActualizarDivInt(cliente, newCashflow, excelWorkbook);
@@ -1222,17 +1223,18 @@ namespace ExcelFill
             Log("Se ajustó la matriz Cashflow");
         }
 
-        private static void ObtenerValorPortfolio(string[,] valoresMercado, out string valorPortafolio)
+        private static void ObtenerValorPortfolio(string[,] valoresMercado, out string valorPortafolio, string anioSetup)
         {
             double portfolio = 0;
             double valor;
             string headers = "Cash,Cash and money balances,liquidez"; //no añadir el valor de cash al portafolio
-
+            string anio;
             
 
             for (int i = 1; i < valoresMercado.GetLength(0); i++)
             {
-                if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")))
+                anio = valoresMercado[i, 13].Split("-")[1];
+                if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")) && anio == anioSetup)
                     continue; //ignorar el cash
 
                 if (!string.IsNullOrEmpty(valoresMercado[i, 5]))
