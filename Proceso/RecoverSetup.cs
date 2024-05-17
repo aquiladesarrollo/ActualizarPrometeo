@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using StartRobot;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace RecoverSetup
 {
@@ -22,8 +23,12 @@ namespace RecoverSetup
             saldos = GenerarMatriz(pathSaldos);
             valoresMercado = GenerarMatriz(pathValoresMercado);
             VMsaldos = GenerarMatriz(pathVMsaldos);
+            GenerarExcelConsolidado(cliente, bonds, cashFlow, valoresMercado, VMsaldos);
+
             Log("Se recuperó la información para el setup del cliente: " + cliente);
         }
+
+
 
         private static string[,] GenerarMatriz(string path)
         {
@@ -47,6 +52,99 @@ namespace RecoverSetup
             }
 
             return matriz;
+        }
+        public static void GenerarExcelConsolidado(string cliente, string[,] bonds, string[,] cashflow, string[,] valoresMercado, string[,] VMsaldos)
+        {
+            if (bonds == null)
+            {
+                return;
+            }
+
+            // Crear una instancia de Excel
+            Excel.Application excelApp = new Excel.Application();
+
+            // Crear un nuevo libro de Excel
+            Excel.Workbook workbook = excelApp.Workbooks.Add();
+
+            try
+            {
+                // Llenar la segunda hoja con la matriz cashFlow
+                LlenarHoja(workbook, cashflow, "Cash Flow");
+
+                // Llenar la primera hoja con la matriz bonds
+                LlenarHoja(workbook, bonds, "Bonds");
+
+                LlenarHoja(workbook, VMsaldos, "VM para Setup");
+
+                // Llenar la cuarta hoja con la matriz valoresMercado
+                LlenarHoja(workbook, valoresMercado, "Valores de Mercado");
+
+
+
+                string rutaDeposito = startBot.cfgDic["rutaDataFeeder"];
+                string fecha = DateTime.Now.ToString("dd-MM-yyyy");
+
+                string pathDeposito = Path.Combine(rutaDeposito, fecha);
+
+                if (!Directory.Exists(pathDeposito))
+                {
+                    Directory.CreateDirectory(pathDeposito);
+                }
+
+                pathDeposito = Path.Combine(pathDeposito, cliente);
+
+                if (!Directory.Exists(pathDeposito))
+                {
+                    Directory.CreateDirectory(pathDeposito);
+                }
+
+                pathDeposito = pathDeposito + $"\\Consolidado_{cliente}_{fecha}.xlsx";
+                workbook.SaveAs(pathDeposito);
+
+                Log("Se realizó el consolidado para el cliente: " + cliente);
+            }
+            catch (Exception ex)
+            {
+                Log("Error obteniendo el consolidado para el cliente: " + cliente);
+            }
+            finally
+            {
+                // Cerrar y liberar recursos
+                workbook.Close();
+                excelApp.Quit();
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
+            }
+        }
+        private static void LlenarHoja(Excel.Workbook workbook, string[,] data, string sheetName)
+        {
+            // Agregar una nueva hoja al libro
+            Excel.Worksheet worksheet = workbook.Sheets.Add();
+            worksheet.Name = sheetName;
+
+            // Obtener el rango de celdas de la hoja
+            Excel.Range range = worksheet.Range["A1"].Resize[data.GetLength(0), data.GetLength(1)];
+
+            // Crear una nueva matriz para almacenar los datos convertidos
+            object[,] convertedData = new object[data.GetLength(0), data.GetLength(1)];
+
+            // Convertir los datos a valores numéricos si es posible
+            for (int i = 0; i < data.GetLength(0); i++)
+            {
+                for (int j = 0; j < data.GetLength(1); j++)
+                {
+                    if (double.TryParse(data[i, j], out double numericValue))
+                    {
+                        convertedData[i, j] = numericValue;
+                    }
+                    else
+                    {
+                        convertedData[i, j] = data[i, j];
+                    }
+                }
+            }
+
+            // Asignar los datos convertidos al rango de celdas utilizando Value2
+            range.Value2 = convertedData;
         }
 
         private static void Log(string message)
