@@ -1,2 +1,2 @@
-# ActualizarPrometeo
-Robot actualización Prometeo en C#
+# SetupPrometeo
+Robot setup Prometeo en C#
