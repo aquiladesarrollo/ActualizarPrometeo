@@ -62,7 +62,7 @@ namespace ExcelFill
                 } else
                 {
                     AjusteSaldosIniciales(VMsaldos, esPIC, anioSetup, out string[,] newVM);
-                    ActualizarSaldosIniciales(newVM, excelWorkbook, (Int32.Parse(anioSetup) - 1).ToString());
+                    ActualizarSetup(newVM, excelWorkbook, (Int32.Parse(anioSetup) - 1).ToString());
                 }
 
                 AjusteBonds(bonds, esPIC, fechaSetup, fechaMacro, out string[,] newBonds);
@@ -210,7 +210,7 @@ namespace ExcelFill
             return tipo;
         }
         
-        private static void ActualizarSaldosIniciales(string[,] valMercado, Excel.Workbook excelWorkbook, string anio)
+        private static void ActualizarSetup(string[,] valMercado, Excel.Workbook excelWorkbook, string anio)
         {
             Excel.Worksheet excelWorksheet = (Excel.Worksheet)excelWorkbook.Sheets["Compras y Ventas"];
 
@@ -394,13 +394,19 @@ namespace ExcelFill
             }
 
             contador = contador + 6;
+            string id, isin, cusipSedol, ticker;
 
             for (int i = 0; i < bonds.GetLength(0); i++)
             {
+                id = !string.IsNullOrEmpty(bonds[i, 10]) ? bonds[i, 10] : "";
+                cusipSedol = !string.IsNullOrEmpty(bonds[i, 5]) ? bonds[i, 5] : id;
+                ticker = !string.IsNullOrEmpty(bonds[i, 9]) ? bonds[i, 9] : cusipSedol;
+                isin = !string.IsNullOrEmpty(bonds[i, 3]) ? bonds[i, 3] : ticker;
+
                 excelWorksheet.Cells[contador + i, 2] = bonds[i, 0]; // Fecha
                 excelWorksheet.Cells[contador + i, 3] = bonds[i, 1]; // Cuenta 
                 excelWorksheet.Cells[contador + i, 4] = bonds[i, 2]; // Nombre Instrumento
-                excelWorksheet.Cells[contador + i, 5] = bonds[i, 3]; // ISIN
+                excelWorksheet.Cells[contador + i, 5] = isin; // ISIN
                 excelWorksheet.Cells[contador + i, 6] = bonds[i, 4]; // Concepto
                 excelWorksheet.Cells[contador + i, 7] = bonds[i, 11]; // Tipo Instrumento
                 excelWorksheet.Cells[contador + i, 8] = bonds[i, 6]; // Moneda
