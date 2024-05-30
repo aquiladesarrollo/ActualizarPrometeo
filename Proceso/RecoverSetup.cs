@@ -99,6 +99,11 @@ namespace RecoverSetup
                 }
 
                 pathDeposito = pathDeposito + $"\\Consolidado_{cliente}_{fecha}.xlsx";
+                if (Directory.Exists(pathDeposito))
+                {
+                    return;
+                }
+
                 workbook.SaveAs(pathDeposito);
 
                 Log("Se realizó el consolidado para el cliente: " + cliente);
