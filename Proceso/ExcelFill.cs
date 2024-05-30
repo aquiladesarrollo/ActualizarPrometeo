@@ -1240,7 +1240,7 @@ namespace ExcelFill
             for (int i = 1; i < valoresMercado.GetLength(0); i++)
             {
                 anio = valoresMercado[i, 13].Split("-")[1];
-                if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")) && anio == anioSetup)
+                if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")) || anio != anioSetup)
                     continue; //ignorar el cash
 
                 if (!string.IsNullOrEmpty(valoresMercado[i, 5]))
