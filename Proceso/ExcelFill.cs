@@ -117,7 +117,7 @@ namespace ExcelFill
                 { 
                     for (int j = 0; j < VM.GetLength(1); j++)
                     {
-                        VM[i,j] = valMercado[i,j];
+                        VM[contador,j] = valMercado[i,j];
                     }
                     contador++; //numero de elementos que se necesitan para llenar saldos iniciales
                 }
@@ -136,7 +136,7 @@ namespace ExcelFill
             for (int i = 1; i <= newVM.GetLength(0); i++)
             {
                 
-                if (valMercado[i, 13] == anioAnterior)
+                if (VM[i, 13] == anioAnterior)
                 {
                     for (int j = 0; j < newVM.GetLength(1) - 1; j++)
                     {

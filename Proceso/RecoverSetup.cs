@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using StartRobot;
+using System.IO;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace RecoverSetup
@@ -99,7 +100,7 @@ namespace RecoverSetup
                 }
 
                 pathDeposito = pathDeposito + $"\\Consolidado_{cliente}_{fecha}.xlsx";
-                if (Directory.Exists(pathDeposito))
+                if (File.Exists(pathDeposito))
                 {
                     return;
                 }
