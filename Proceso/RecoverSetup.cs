@@ -61,6 +61,29 @@ namespace RecoverSetup
                 return;
             }
 
+            string rutaDeposito = startBot.cfgDic["rutaDataFeeder"];
+            string fecha = DateTime.Now.ToString("dd-MM-yyyy");
+
+            string pathDeposito = Path.Combine(rutaDeposito, fecha);
+
+            if (!Directory.Exists(pathDeposito))
+            {
+                Directory.CreateDirectory(pathDeposito);
+            }
+
+            pathDeposito = Path.Combine(pathDeposito, cliente);
+
+            if (!Directory.Exists(pathDeposito))
+            {
+                Directory.CreateDirectory(pathDeposito);
+            }
+
+            pathDeposito = pathDeposito + $"\\Consolidado_{cliente}_{fecha}.xlsx";
+            if (File.Exists(pathDeposito))
+            {
+                return;
+            }
+
             // Crear una instancia de Excel
             Excel.Application excelApp = new Excel.Application();
 
@@ -80,30 +103,6 @@ namespace RecoverSetup
                 // Llenar la cuarta hoja con la matriz valoresMercado
                 LlenarHoja(workbook, valoresMercado, "Valores de Mercado");
 
-
-
-                string rutaDeposito = startBot.cfgDic["rutaDataFeeder"];
-                string fecha = DateTime.Now.ToString("dd-MM-yyyy");
-
-                string pathDeposito = Path.Combine(rutaDeposito, fecha);
-
-                if (!Directory.Exists(pathDeposito))
-                {
-                    Directory.CreateDirectory(pathDeposito);
-                }
-
-                pathDeposito = Path.Combine(pathDeposito, cliente);
-
-                if (!Directory.Exists(pathDeposito))
-                {
-                    Directory.CreateDirectory(pathDeposito);
-                }
-
-                pathDeposito = pathDeposito + $"\\Consolidado_{cliente}_{fecha}.xlsx";
-                if (File.Exists(pathDeposito))
-                {
-                    return;
-                }
 
                 workbook.SaveAs(pathDeposito);
 

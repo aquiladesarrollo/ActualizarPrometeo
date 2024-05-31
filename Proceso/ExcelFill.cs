@@ -133,7 +133,7 @@ namespace ExcelFill
             //quitar renglones en blanco
             newVM = new string[contador, VM.GetLength(1) + 1];
             contador = 0;
-            for (int i = 1; i <= newVM.GetLength(0); i++)
+            for (int i = 0; i <= newVM.GetLength(0); i++)
             {
                 
                 if (VM[i, 13] == anioAnterior)
