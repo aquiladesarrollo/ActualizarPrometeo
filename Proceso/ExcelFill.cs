@@ -224,6 +224,8 @@ namespace ExcelFill
             int ultimoDiaMes;
             for (int i = 0; i < valoresMercado.GetLength(0); i++)
             {
+                if (valoresMercado[i, 13] == "Periodo")
+                    continue;
                 periodos.Add(valoresMercado[i, 13]);
             }
             if (periodos.Count == 1)
@@ -247,14 +249,15 @@ namespace ExcelFill
                     contador++;
                 }
             }
-            newVM = new string[contador, 15];
+            newVM = new string[contador, valoresMercado.GetLength(1)];
             contador = 0;
 
             for (int i = 0; i < valoresMercado.GetLength(0); i++)
             {
                 if (ultimoPeriodo == valoresMercado[i, 13])
                 {
-                    for (int j = 0; j < valoresMercado.GetLength(1); j++)
+                    //valoresMercado tiene una columna extra que no tiene nada, la añade a 
+                    for (int j = 0; j < newVM.GetLength(1); j++)
                     {
                         newVM[contador, j] = valoresMercado[i, j];
                     }
@@ -263,7 +266,7 @@ namespace ExcelFill
             }
 
             partesPeriodo = ultimoPeriodo.Split("-");
-            ultimoDiaMes = DateTime.DaysInMonth(int.Parse(partesPeriodo[0]), int.Parse(partesPeriodo[1]));
+            ultimoDiaMes = DateTime.DaysInMonth(int.Parse(partesPeriodo[1]), int.Parse(partesPeriodo[0]));
             fechaPortada = partesPeriodo[1] + "-" + partesPeriodo[0] + "-" + ultimoDiaMes.ToString();
 
         }
