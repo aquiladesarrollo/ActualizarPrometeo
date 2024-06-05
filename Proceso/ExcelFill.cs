@@ -61,21 +61,23 @@ namespace ExcelFill
                     fechaMacro = ObtenerUltimoMovimiento(excelWorkbook, esPIC);
                 } else
                 {
-                    AjusteSaldosIniciales(VMsaldos, esPIC, anioSetup, out string[,] newVM);
-                    ActualizarSetup(newVM, excelWorkbook, (Int32.Parse(anioSetup) - 1).ToString());
+                    AjusteSaldosIniciales(VMsaldos, esPIC, anioSetup, out string[,] VMSetup);
+                    ActualizarSetup(VMSetup, excelWorkbook, (Int32.Parse(anioSetup) - 1).ToString());
                 }
 
                 AjusteBonds(bonds, esPIC, fechaSetup, fechaMacro, out string[,] newBonds);
                 AjusteCashflow(cashflow, fechaSetup, fechaMacro, out string[,] newCashflow);
-                ObtenerValorPortfolio(valoresMercado, out string valorPortafolio, anioSetup);
+                AjusteValoresMercado(valoresMercado, out string[,] newVM, out string fechaPortada);
+
+                ObtenerValorPortfolio(newVM, out string valorPortafolio, anioSetup);
 
                 ActualizarComprasYVentas(cliente, newBonds, excelWorkbook);
                 ActualizarDivInt(cliente, newCashflow, excelWorkbook);
-                ActualizarPortada(cliente, valorPortafolio, esPIC, fechaSetup, excelWorkbook);
+                ActualizarPortada(cliente, valorPortafolio, esPIC, fechaSetup, excelWorkbook, fechaPortada);
                 ActualizarBaseDatos(excelWorkbook);
 
                 EjecutarMacros(cliente, excelApp, excelWorkbook);
-                ActualizarValoresMercado(cliente, valoresMercado, VMsaldos, excelWorkbook, esPIC);
+                ActualizarValoresMercado(cliente, newVM, excelWorkbook, esPIC);
             }
             catch (Exception ex)
             {
@@ -211,7 +213,60 @@ namespace ExcelFill
             }
             return tipo;
         }
-        
+        //Va a obtener todos los valores de mercado del último mes y año que exista
+        private static void AjusteValoresMercado(string[,] valoresMercado, out string[,] newVM, out string fechaPortada)
+        {
+            HashSet<string> periodos = new HashSet<string>();
+            DateTime[] arrayPeriodos;
+            string[] partesPeriodo;
+            string ultimoPeriodo;
+
+            int ultimoDiaMes;
+            for (int i = 0; i < valoresMercado.GetLength(0); i++)
+            {
+                periodos.Add(valoresMercado[i, 13]);
+            }
+            if (periodos.Count == 1)
+            {
+                newVM = valoresMercado;
+                partesPeriodo = periodos.ToArray()[0].Split("-");
+                ultimoDiaMes = DateTime.DaysInMonth(int.Parse(partesPeriodo[0]), int.Parse(partesPeriodo[1]));
+                //fechaPortada = new DateTime(ultimoDiaMes, int.Parse(partesPeriodo[0]), int.Parse(partesPeriodo[1])).ToString("yyyy-MM-dd");
+                fechaPortada = partesPeriodo[1] + "-" + partesPeriodo[0] + "-" + ultimoDiaMes.ToString();
+                return;
+            }
+            arrayPeriodos = periodos.ToArray().Select(fecha => DateTime.ParseExact(fecha, "MM-yyyy", CultureInfo.InvariantCulture)).ToArray();
+            ultimoPeriodo = arrayPeriodos.Max().ToString("MM-yyyy");
+
+            //Obtener VM del ultimo periodo
+            int contador = 0;
+            for (int i = 0; i < valoresMercado.GetLength(0); i++)
+            {
+                if (ultimoPeriodo == valoresMercado[i, 13])
+                {
+                    contador++;
+                }
+            }
+            newVM = new string[contador, 15];
+            contador = 0;
+
+            for (int i = 0; i < valoresMercado.GetLength(0); i++)
+            {
+                if (ultimoPeriodo == valoresMercado[i, 13])
+                {
+                    for (int j = 0; j < valoresMercado.GetLength(1); j++)
+                    {
+                        newVM[contador, j] = valoresMercado[i, j];
+                    }
+                    contador++;
+                }
+            }
+
+            partesPeriodo = ultimoPeriodo.Split("-");
+            ultimoDiaMes = DateTime.DaysInMonth(int.Parse(partesPeriodo[0]), int.Parse(partesPeriodo[1]));
+            fechaPortada = partesPeriodo[1] + "-" + partesPeriodo[0] + "-" + ultimoDiaMes.ToString();
+
+        }
         private static void ActualizarSetup(string[,] valMercado, Excel.Workbook excelWorkbook, string anio)
         {
             Excel.Worksheet excelWorksheet = (Excel.Worksheet)excelWorkbook.Sheets["Compras y Ventas"];
@@ -457,7 +512,7 @@ namespace ExcelFill
             Log("Se llenó la hoja DivInt");
         }
 
-        private static void ActualizarPortada(string cliente, string valorPortafolio, bool esPIC, string fechaSetup, Excel.Workbook excelWorkbook)
+        private static void ActualizarPortada(string cliente, string valorPortafolio, bool esPIC, string fechaSetup, Excel.Workbook excelWorkbook, string fechaPortada)
         {
             DateTime.TryParseExact(fechaSetup, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateSetup);
             string anio = string.Empty;
@@ -465,8 +520,9 @@ namespace ExcelFill
 
             if (DateTime.Today.Year > dateSetup.Year)
             {
-                anio = dateSetup.ToString("yyyy");
-                fechaActualizacion = new DateTime(dateSetup.Year, 12, 31);
+                //anio = dateSetup.ToString("yyyy");
+                DateTime.TryParseExact(fechaPortada, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fecha);
+                fechaActualizacion = fecha;
             }
             else
             {
@@ -620,7 +676,7 @@ namespace ExcelFill
             Log("Se actualizó la Base de Datos");
         }
 
-        private static void ActualizarValoresMercado(string cliente, string[,] valoresMercado, string[,] valoresMercadoAntiguo, Excel.Workbook excelWorkbook, bool esPIC)
+        private static void ActualizarValoresMercado(string cliente, string[,] valoresMercado, Excel.Workbook excelWorkbook, bool esPIC)
         {
             Excel.Worksheet excelWorksheet = (Excel.Worksheet)excelWorkbook.Sheets["Inventario"];
 
@@ -1242,7 +1298,7 @@ namespace ExcelFill
             for (int i = 1; i < valoresMercado.GetLength(0); i++)
             {
                 anio = valoresMercado[i, 13].Split("-")[1];
-                if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")) || anio != anioSetup)
+                if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")))
                     continue; //ignorar el cash
 
                 if (!string.IsNullOrEmpty(valoresMercado[i, 5]))
