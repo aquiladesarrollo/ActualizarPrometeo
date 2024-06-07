@@ -67,7 +67,7 @@ namespace ExcelFill
 
                 AjusteBonds(bonds, esPIC, fechaSetup, fechaMacro, out string[,] newBonds);
                 AjusteCashflow(cashflow, fechaSetup, fechaMacro, out string[,] newCashflow);
-                AjusteValoresMercado(valoresMercado, out string[,] newVM, out string fechaPortada);
+                AjusteValoresMercado(valoresMercado,anioSetup, out string[,] newVM, out string fechaPortada);
 
                 ObtenerValorPortfolio(newVM, out string valorPortafolio, anioSetup);
 
@@ -214,7 +214,7 @@ namespace ExcelFill
             return tipo;
         }
         //Va a obtener todos los valores de mercado del último mes y año que exista
-        private static void AjusteValoresMercado(string[,] valoresMercado, out string[,] newVM, out string fechaPortada)
+        private static void AjusteValoresMercado(string[,] valoresMercado, string anioSetup, out string[,] newVM, out string fechaPortada)
         {
             HashSet<string> periodos = new HashSet<string>();
             DateTime[] arrayPeriodos;
@@ -224,7 +224,7 @@ namespace ExcelFill
             int ultimoDiaMes;
             for (int i = 0; i < valoresMercado.GetLength(0); i++)
             {
-                if (valoresMercado[i, 13] == "Periodo")
+                if (valoresMercado[i, 13] == "Periodo" || !valoresMercado[i, 13].Contains(anioSetup))
                     continue;
                 periodos.Add(valoresMercado[i, 13]);
             }
