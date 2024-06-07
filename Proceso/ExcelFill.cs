@@ -1077,6 +1077,10 @@ namespace ExcelFill
                     newBonds[i, 7] = valor.ToString();
                     newBonds[i, 8] = unidades.ToString();
                 }
+                else if (ContieneSubcadena(newBonds[i, 4], startBot.cfgDic["compra-"].Split(",")) )
+                {
+                    newBonds[i, 4] = "Compra-";
+                }
                 else if (ContieneSubcadena(newBonds[i, 4], startBot.cfgDic["split"].Split(",")) && !string.IsNullOrEmpty(newBonds[i, 7]) && !string.IsNullOrEmpty(newBonds[i, 8]))
                 {
                     double valor = double.Parse(newBonds[i, 7]);
@@ -1298,7 +1302,7 @@ namespace ExcelFill
             string anio;
             
 
-            for (int i = 1; i < valoresMercado.GetLength(0); i++)
+            for (int i = 0; i < valoresMercado.GetLength(0); i++)
             {
                 anio = valoresMercado[i, 13].Split("-")[1];
                 if (ContieneSubcadena(valoresMercado[i, 2], headers.Split(",")))
