@@ -1233,6 +1233,10 @@ namespace ExcelFill
                 {
                     newCashflow[i, 13] = "Gastos";
                 }
+                else if (ContieneSubcadena(newCashflow[i, 4], startBot.cfgDic["peDist"].Split(",")))
+                {
+                    newCashflow[i, 13] = "PE Distribution";
+                }
                 else if (ContieneSubcadena(newCashflow[i, 4], startBot.cfgDic["aportacionCapital"].Split(",")))
                 {
                     newCashflow[i, 13] = "Aportación de Capital";
@@ -1261,13 +1265,16 @@ namespace ExcelFill
                 {
                     newCashflow[i, 13] = "No Deducibles";
                 }
-                else if (ContieneSubcadena(newCashflow[i, 4], startBot.cfgDic["peDist"].Split(",")))
-                {
-                    newCashflow[i, 13] = "PE Distribution";
-                }
                 else if (ContieneSubcadena(newCashflow[i, 4], startBot.cfgDic["capitalCall"].Split(",")))
                 {
                     newCashflow[i, 13] = "Capital Call";
+                }
+                else if (ContieneSubcadena(newCashflow[i, 4], startBot.cfgDic["special"].Split(",")))
+                {
+                    if (newCashflow[i, 2].Contains("fees"))
+                        newCashflow[i, 13] = "Comisiones";
+                     else
+                        newCashflow[i, 13] = "Retiro de Capital";
                 }
                 else 
                 {
